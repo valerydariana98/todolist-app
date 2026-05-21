@@ -1,15 +1,11 @@
 const express = require("express");
-const cors = require("cors");
 
 const app = express();
 
-app.use(cors());
+const taskRoutes = require("./routes/taskRoutes");
+
 app.use(express.json());
 
-app.get("/", (req, res) => {
-   res.json({
-      message: "Backend funcionando"
-   });
-});
+app.use("/api/tasks", taskRoutes);
 
 module.exports = app;
