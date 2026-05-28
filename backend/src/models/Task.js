@@ -4,7 +4,10 @@ const taskSchema = new mongoose.Schema({
 
    title: {
       type: String,
-      required: true
+      required: true,
+      trim: true,       //elimina espacios
+      minlength: 1,
+      maxlength: 100
    },
 
    completed: {
@@ -14,7 +17,8 @@ const taskSchema = new mongoose.Schema({
 
    todoList: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "TodoList"
+      ref: "TodoList",
+      required: true
    }
 
 }, {

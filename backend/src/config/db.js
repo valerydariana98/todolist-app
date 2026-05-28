@@ -4,13 +4,17 @@ const connectDB = async () => {
 
    try {
 
+      if (!process.env.MONGO_URI) {
+         throw new Error("MONGO_URI no definida");
+      }
+
       await mongoose.connect(process.env.MONGO_URI);
 
       console.log("MongoDB conectado");
 
    } catch (error) {
 
-      console.log(error);
+      console.error("Error conectando MongoDB:", error.message);
 
       process.exit(1);
 
