@@ -20,6 +20,14 @@ app.use(helmet());
 app.use(compression());
 app.use(express.json());
 app.use(cacheMiddleware);
+
+app.get("/health", (req, res) => {
+   res.status(200).json({
+      success: true,
+      message: "Server running"
+   });
+});
+
 app.use("/api/tasks", taskRoutes);
 app.use("/api/todolists", todoListRoutes);
 
