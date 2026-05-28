@@ -1,232 +1,149 @@
 const Task = require("../models/Task");
+const AppError = require("../utils/AppError");
 
-const getTasks = async (req, res) => {
-
+const getTasks = async (req, res, next) => {
    try {
-
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
       const skip = (page - 1) * limit;
-      const tasks = await Task.find()
-         .populate("todoList")
+      const filter = {};
+
+      if (req.query.completed !== undefined) {
+         filter.completed = req.query.completed === "true";
+      }
+
+      if (req.query.search) {
+         filter.title = {
+            $regex: req.query.search,
+            $options: "i"
+         };
+      }
+
+      const tasks = await Task.find(filter)
+         .sort({ createdAt: -1 })
          .skip(skip)
          .limit(limit);
 
-      const total = await Task.countDocuments();
+      const total = await Task.countDocuments(filter);
 
       res.status(200).json({
-
-         data: tasks,
-
-         meta: {
-            total,
-            page,
-            limit,
-            pages: Math.ceil(total / limit)
-         },
-
-         links: {
-            self: `/api/tasks?page=${page}&limit=${limit}`
-         }
-
+         success: true,
+         page,
+         limit,
+         total,
+         data: tasks
       });
 
    } catch (error) {
-
-      res.status(500).json({
-         error: {
-            message: error.message,
-            status: 500
-         }
-      });
-
+      next(error);
    }
-
 };
 
-const getTaskById = async (req, res) => {
-
+const getTaskById = async (req, res, next) => {
    try {
-
-      const task = await Task.findById(req.params.id)
-         .populate("todoList");
-
+      const task = await Task.findById(req.params.id);
       if (!task) {
-
-         return res.status(404).json({
-            error: {
-               message: "Task not found",
-               status: 404
-            }
-         });
-
+         return next(
+            new AppError("Task not found", 404)
+         );
       }
 
       res.status(200).json({
+         success: true,
          data: task
       });
 
    } catch (error) {
-
-      res.status(500).json({
-         error: {
-            message: error.message,
-            status: 500
-         }
-      });
-
+      next(error);
    }
 
 };
 
-const createTask = async (req, res) => {
-
+const createTask = async (req, res, next) => {
    try {
-
-      if (!req.body.title) {
-         return res.status(400).json({
-            error: {
-               message: "Title is required",
-               status: 400
-            }
-         });
-      }
-
-      const newTask = new Task({
-         title: req.body.title,
-         todoList: req.body.todoList
-      });
-
-      const savedTask = await newTask.save();
-
+      const newTask = await Task.create(req.body);
       res.status(201).json({
-         data: savedTask
+         success: true,
+         message: "Task created successfully",
+         data: newTask
       });
 
    } catch (error) {
-
-      res.status(500).json({
-         error: {
-            message: error.message,
-            status: 500
-         }
-      });
+      next(error);
    }
 };
 
-const updateTask = async (req, res) => {
-
+const updateTask = async (req, res, next) => {
    try {
-
       const updatedTask = await Task.findByIdAndUpdate(
          req.params.id,
-         {
-            title: req.body.title
-         },
-
+         req.body,
          {
             new: true,
             runValidators: true
          }
-
       );
 
       if (!updatedTask) {
-         return res.status(404).json({
-            error: {
-               message: "Task not found",
-               status: 404
-            }
-         });
+         return next(
+            new AppError("Task not found", 404)
+         );
       }
 
       res.status(200).json({
+         success: true,
+         message: "Task updated successfully",
          data: updatedTask
       });
 
    } catch (error) {
-
-      res.status(500).json({
-         error: {
-            message: error.message,
-            status: 500
-         }
-      });
-
+      next(error);
    }
-
 };
 
-const toggleTaskCompleted = async (req, res) => {
-
+const toggleTaskCompleted = async (req, res, next) => {
    try {
-
       const task = await Task.findById(req.params.id);
-
       if (!task) {
-         return res.status(404).json({
-            error: {
-               message: "Task not found",
-               status: 404
-            }
-         });
+         return next(
+            new AppError("Task not found", 404)
+         );
       }
 
       task.completed = !task.completed;
-
       await task.save();
 
       res.status(200).json({
+         success: true,
+         message: "Task status updated",
          data: task
       });
 
    } catch (error) {
-
-      res.status(500).json({
-         error: {
-            message: error.message,
-            status: 500
-         }
-      });
-
+      next(error);
    }
-
 };
 
-const deleteTask = async (req, res) => {
-
+const deleteTask = async (req, res, next) => {
    try {
-
       const deletedTask = await Task.findByIdAndDelete(req.params.id);
-
       if (!deletedTask) {
-
-         return res.status(404).json({
-            error: {
-               message: "Task not found",
-               status: 404
-            }
-         });
-
+         return next(
+            new AppError("Task not found", 404)
+         );
       }
 
-      res.status(204).send();
-
-   } catch (error) {
-
-      res.status(500).json({
-         error: {
-            message: error.message,
-            status: 500
-         }
+      res.status(200).json({
+         success: true,
+         message: "Task deleted successfully"
       });
 
+   } catch (error) {
+      next(error);
    }
-
 };
 
 module.exports = {
-
    getTasks,
    getTaskById,
    createTask,

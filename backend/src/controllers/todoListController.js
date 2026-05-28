@@ -1,136 +1,62 @@
 const TodoList = require("../models/TodoList");
-const Task = require("../models/Task");
+const AppError = require("../utils/AppError");
 
-const getAllTodoLists = async (req, res) => {
+const getAllTodoLists = async (req, res, next) => {
    try {
-
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
-      const skip = (page - 1) * limit;
-
       const todoLists = await TodoList.find()
-         .sort({ createdAt: -1 })
-         .skip(skip)
-         .limit(limit);
-
-      const total = await TodoList.countDocuments();
+         .sort({ createdAt: -1 });
 
       res.status(200).json({
-
-         data: todoLists,
-
-         meta: {
-            total,
-            page,
-            limit,
-            pages: Math.ceil(total / limit)
-         },
-
-         links: {
-            self: `/api/todolists?page=${page}&limit=${limit}`
-         }
+         success: true,
+         total: todoLists.length,
+         data: todoLists
       });
 
    } catch (error) {
-
-      res.status(500).json({
-         error: {
-            message: error.message,
-            status: 500
-         }
-      });
+      next(error);
    }
+
 };
 
-const getTodoListById = async (req, res) => {
-
+const getTodoListById = async (req, res, next) => {
    try {
-
       const todoList = await TodoList.findById(req.params.id);
-
       if (!todoList) {
-
-         return res.status(404).json({
-            error: {
-               message: "TodoList not found",
-               status: 404
-            }
-         });
+         return next(
+            new AppError("Todo list not found", 404)
+         );
       }
 
       res.status(200).json({
+         success: true,
          data: todoList
       });
 
    } catch (error) {
-
-      res.status(500).json({
-         error: {
-            message: error.message,
-            status: 500
-         }
-      });
+      next(error);
    }
 };
 
-const createTodoList = async (req, res) => {
-
+const createTodoList = async (req, res, next) => {
    try {
-
-      const { title, user } = req.body;
-
-      if (!title || title.trim() === "") {
-         return res.status(400).json({
-            error: {
-               message: "Title is required",
-               status: 400
-            }
-         });
-      }
-
-      const todoList = await TodoList.create({
-         title,
-         user
-      });
+      const todoList = await TodoList.create(req.body);
 
       res.status(201).json({
+         success: true,
+         message: "Todo list created successfully",
          data: todoList
       });
 
    } catch (error) {
-
-      res.status(500).json({
-         error: {
-            message: error.message,
-            status: 500
-         }
-      });
+      next(error);
    }
 };
 
-const updateTodoList = async (req, res) => {
-
+const updateTodoList = async (req, res, next) => {
    try {
-
-      const { title, user } = req.body;
-
-      if (title !== undefined && title.trim() === "") {
-         return res.status(400).json({
-            error: {
-               message: "Title cannot be empty",
-               status: 400
-            }
-         });
-
-      }
-
       const updatedTodoList = await TodoList.findByIdAndUpdate(
          req.params.id,
-         {
-            title,
-            user
-         },
-
+         req.body,
          {
             new: true,
             runValidators: true
@@ -138,67 +64,45 @@ const updateTodoList = async (req, res) => {
       );
 
       if (!updatedTodoList) {
-         return res.status(404).json({
-            error: {
-               message: "TodoList not found",
-               status: 404
-            }
-         });
+         return next(
+            new AppError("Todo list not found", 404)
+         );
       }
 
       res.status(200).json({
+         success: true,
+         message: "Todo list updated successfully",
          data: updatedTodoList
       });
 
    } catch (error) {
-
-      res.status(500).json({
-         error: {
-            message: error.message,
-            status: 500
-         }
-      });
+      next(error);
    }
 };
 
-const deleteTodoList = async (req, res) => {
-
+const deleteTodoList = async (req, res, next) => {
    try {
-
       const deletedTodoList = await TodoList.findByIdAndDelete(req.params.id);
-
       if (!deletedTodoList) {
-         return res.status(404).json({
-            error: {
-               message: "TodoList not found",
-               status: 404
-            }
-         });
+         return next(
+            new AppError("Todo list not found", 404)
+         );
       }
 
-      await Task.deleteMany({
-         todoList: req.params.id
+      res.status(200).json({
+         success: true,
+         message: "Todo list deleted successfully"
       });
 
-      res.status(204).send();
-
    } catch (error) {
-
-      res.status(500).json({
-         error: {
-            message: error.message,
-            status: 500
-         }
-      })
+      next(error);
    }
 };
 
 module.exports = {
-
    getAllTodoLists,
    getTodoListById,
    createTodoList,
    updateTodoList,
    deleteTodoList
-
 };
