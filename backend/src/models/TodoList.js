@@ -4,12 +4,16 @@ const todoListSchema = new mongoose.Schema({
 
    title: {
       type: String,
-      required: true
+      required: true,
+      trim: true,
+      minlength: 1,
+      maxlength: 100
    },
 
    user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User"
+      ref: "User",
+      //required: true     //obligatorio cuando implementemos usuarios
    }
 
 }, {

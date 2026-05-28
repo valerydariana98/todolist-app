@@ -4,10 +4,24 @@ const connectDB = require("./config/db");
 
 const app = require("./app");
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 
-connectDB();
+const startServer = async () => {
 
-app.listen(PORT, () => {
-   console.log(`Servidor corriendo en puerto ${PORT}`);
-});
+   try {
+
+      await connectDB();
+
+      app.listen(PORT, () => {
+         console.log(`Servidor corriendo en puerto ${PORT}`);
+      });
+
+   } catch (error) {
+
+      console.error("Error iniciando servidor:", error);
+
+   }
+
+};
+
+startServer();
