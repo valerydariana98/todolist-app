@@ -135,7 +135,7 @@ Configurar:
 
 ```env
 PORT=3000
-MONGO_URI=tu_uri_de_mongodb
+MONGO_URI=uri_de_mongodb
 CLIENT_URL=http://localhost:5173
 ```
 
@@ -215,31 +215,3 @@ http://localhost:5173
 | PUT | /api/tasks/:id |
 | PATCH | /api/tasks/:id/completed |
 | DELETE | /api/tasks/:id |
-
----
-
-## Mejoras Implementadas
-
-### Backend
-
-- Validación de datos con Zod
-- Helmet para seguridad HTTP
-- Compression para reducción de tamaño de respuestas
-- Cache-Control
-- ETag
-- Manejo centralizado de errores
-
-### Frontend
-
-- Separación por páginas
-- Servicios desacoplados
-- Cliente HTTP centralizado
-- Configuración mediante variables de entorno
-
----
-
-## Autor
-
-Proyecto desarrollado para la materia de Desarrollo Web.
-
-Autora: Dariana Panozo
