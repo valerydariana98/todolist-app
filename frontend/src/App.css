@@ -120,7 +120,7 @@ input[type="checkbox"] {
   font-size: 0.85rem;
   color: #888;
   cursor: pointer;
-  margin-bottom: 1.25rem;
+  margin-top: 1.25rem;
   padding: 0;
   display: block;
   transition: color 0.15s;
@@ -138,4 +138,19 @@ input[type="checkbox"] {
   font-size: 0.88rem;
   color: #c0392b;
   margin-bottom: 0.75rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.auth-form input {
+  padding: 12px;
+}
+
+.auth-form button {
+  margin-top: 8px;
 }

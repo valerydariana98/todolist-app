@@ -3,10 +3,9 @@ const AppError = require("../utils/AppError");
 
 const getTasks = async (req, res, next) => {
    try {
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
-      const skip = (page - 1) * limit;
-      const filter = {};
+      const filter = {
+         user: req.user.id
+      };
 
       if (req.query.completed !== undefined) {
          filter.completed = req.query.completed === "true";
@@ -20,17 +19,11 @@ const getTasks = async (req, res, next) => {
       }
 
       const tasks = await Task.find(filter)
-         .sort({ createdAt: -1 })
-         .skip(skip)
-         .limit(limit);
-
-      const total = await Task.countDocuments(filter);
+         .sort({ createdAt: -1 });
 
       res.status(200).json({
          success: true,
-         page,
-         limit,
-         total,
+         total: tasks.length,
          data: tasks
       });
 
@@ -41,7 +34,11 @@ const getTasks = async (req, res, next) => {
 
 const getTaskById = async (req, res, next) => {
    try {
-      const task = await Task.findById(req.params.id);
+      const task = await Task.findOne({
+         _id: req.params.id,
+         user: req.user.id
+      });
+
       if (!task) {
          return next(
             new AppError("Task not found", 404)
@@ -56,12 +53,16 @@ const getTaskById = async (req, res, next) => {
    } catch (error) {
       next(error);
    }
-
 };
 
 const createTask = async (req, res, next) => {
    try {
-      const newTask = await Task.create(req.body);
+      const newTask = await Task.create({
+         title: req.body.title,
+         todoList: req.body.todoList,
+         user: req.user.id
+      });
+
       res.status(201).json({
          success: true,
          message: "Task created successfully",
@@ -75,8 +76,11 @@ const createTask = async (req, res, next) => {
 
 const updateTask = async (req, res, next) => {
    try {
-      const updatedTask = await Task.findByIdAndUpdate(
-         req.params.id,
+      const updatedTask = await Task.findOneAndUpdate(
+         {
+            _id: req.params.id,
+            user: req.user.id
+         },
          req.body,
          {
             new: true,
@@ -103,7 +107,11 @@ const updateTask = async (req, res, next) => {
 
 const toggleTaskCompleted = async (req, res, next) => {
    try {
-      const task = await Task.findById(req.params.id);
+      const task = await Task.findOne({
+         _id: req.params.id,
+         user: req.user.id
+      });
+
       if (!task) {
          return next(
             new AppError("Task not found", 404)
@@ -126,7 +134,11 @@ const toggleTaskCompleted = async (req, res, next) => {
 
 const deleteTask = async (req, res, next) => {
    try {
-      const deletedTask = await Task.findByIdAndDelete(req.params.id);
+      const deletedTask = await Task.findOneAndDelete({
+         _id: req.params.id,
+         user: req.user.id
+      });
+
       if (!deletedTask) {
          return next(
             new AppError("Task not found", 404)

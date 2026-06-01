@@ -5,7 +5,7 @@ const taskSchema = new mongoose.Schema({
    title: {
       type: String,
       required: true,
-      trim: true,       //elimina espacios
+      trim: true,      
       minlength: 1,
       maxlength: 100
    },
@@ -18,6 +18,12 @@ const taskSchema = new mongoose.Schema({
    todoList: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "TodoList",
+      required: true
+   },
+
+   user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true
    }
 

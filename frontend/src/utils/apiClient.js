@@ -1,24 +1,43 @@
-const API_URL = import.meta.env.VITE_API_URL;
+import axios from "axios";
 
-export async function request(path, options = {}) {
-  const response = await fetch(`${API_URL}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-    ...options,
-  });
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+});
 
-  if (response.status === 204) {
-    return null;
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    config.headers.Authorization =
+      `Bearer ${token}`;
   }
 
-  const data = await response.json();
+  return config;
+});
 
-  if (!response.ok) {
-    throw new Error(
-      data.error?.message || "Error en la petición"
-    );
+export async function request(
+  path,
+  options = {}
+) {
+  try {
+    const response = await api({
+      url: path,
+      method: options.method || "GET",
+      data: options.body
+        ? JSON.parse(options.body)
+        : undefined,
+    });
+
+    return response.data.data ??
+      response.data;
+
+  } catch (error) {
+    const message =
+      error.response?.data?.message ||
+      "Error en la petición";
+
+    throw error.response
+      ? new Error(message)
+      : error;
   }
-
-  return data.data ?? data;
 }

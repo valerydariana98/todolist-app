@@ -3,8 +3,9 @@ const AppError = require("../utils/AppError");
 
 const getAllTodoLists = async (req, res, next) => {
    try {
-      const todoLists = await TodoList.find()
-         .sort({ createdAt: -1 });
+      const todoLists = await TodoList.find({
+         user: req.user.id
+      }).sort({ createdAt: -1 });
 
       res.status(200).json({
          success: true,
@@ -15,12 +16,15 @@ const getAllTodoLists = async (req, res, next) => {
    } catch (error) {
       next(error);
    }
-
 };
 
 const getTodoListById = async (req, res, next) => {
    try {
-      const todoList = await TodoList.findById(req.params.id);
+      const todoList = await TodoList.findOne({
+         _id: req.params.id,
+         user: req.user.id
+      });
+
       if (!todoList) {
          return next(
             new AppError("Todo list not found", 404)
@@ -39,7 +43,10 @@ const getTodoListById = async (req, res, next) => {
 
 const createTodoList = async (req, res, next) => {
    try {
-      const todoList = await TodoList.create(req.body);
+      const todoList = await TodoList.create({
+         title: req.body.title,
+         user: req.user.id
+      });
 
       res.status(201).json({
          success: true,
@@ -54,8 +61,11 @@ const createTodoList = async (req, res, next) => {
 
 const updateTodoList = async (req, res, next) => {
    try {
-      const updatedTodoList = await TodoList.findByIdAndUpdate(
-         req.params.id,
+      const updatedTodoList = await TodoList.findOneAndUpdate(
+         {
+            _id: req.params.id,
+            user: req.user.id
+         },
          req.body,
          {
             new: true,
@@ -82,7 +92,11 @@ const updateTodoList = async (req, res, next) => {
 
 const deleteTodoList = async (req, res, next) => {
    try {
-      const deletedTodoList = await TodoList.findByIdAndDelete(req.params.id);
+      const deletedTodoList = await TodoList.findOneAndDelete({
+         _id: req.params.id,
+         user: req.user.id
+      });
+
       if (!deletedTodoList) {
          return next(
             new AppError("Todo list not found", 404)

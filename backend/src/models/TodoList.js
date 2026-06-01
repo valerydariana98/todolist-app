@@ -13,7 +13,7 @@ const todoListSchema = new mongoose.Schema({
    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      //required: true     //obligatorio cuando implementemos usuarios
+      required: true    
    }
 
 }, {
