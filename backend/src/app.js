@@ -4,6 +4,7 @@ const compression = require("compression");
 const helmet = require("helmet");
 const cacheMiddleware = require("./middlewares/cacheMiddleware");
 const errorHandler = require("./middlewares/errorHandler");
+const authRoutes = require("./routes/authRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const todoListRoutes = require("./routes/todoListRoutes");
 const app = express();
@@ -28,6 +29,7 @@ app.get("/health", (req, res) => {
    });
 });
 
+app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/todolists", todoListRoutes);
 
