@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 
-const API = "http://localhost:3000/api";
+const API = "/api";
 
 async function req(path, options = {}) {
   const res = await fetch(API + path, {
