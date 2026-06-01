@@ -28,7 +28,6 @@ function App() {
 
   function handleLogout() {
     removeToken();
-
     setAuthenticated(false);
     setSection(null);
   }
@@ -59,17 +58,19 @@ function App() {
 
   return (
     <div className="app">
-      <button
-        className="btn-back"
-        onClick={handleLogout}
-      >
-        Cerrar sesión
-      </button>
-
       {section === null ? (
-        <SectionsView
-          onOpen={setSection}
-        />
+        <>
+          <SectionsView
+            onOpen={setSection}
+          />
+
+          <button
+            className="btn-back"
+            onClick={handleLogout}
+          >
+            Cerrar sesión
+          </button>
+        </>
       ) : (
         <TasksView
           section={section}

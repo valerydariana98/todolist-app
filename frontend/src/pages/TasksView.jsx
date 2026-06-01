@@ -83,9 +83,6 @@ function TasksView({ section, onBack }) {
 
   return (
     <div className="view">
-      <button className="btn-back" onClick={onBack}>
-        Volver
-      </button>
 
       <h1>{section.title}</h1>
 
@@ -157,6 +154,14 @@ function TasksView({ section, onBack }) {
             </li>
           ))}
       </ul>
+
+      <button
+        className="btn-back"
+        onClick={onBack}
+      >
+        ← Volver a listas
+      </button>
+      
     </div>
   );
 }

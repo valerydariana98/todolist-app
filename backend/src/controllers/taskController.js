@@ -3,10 +3,6 @@ const AppError = require("../utils/AppError");
 
 const getTasks = async (req, res, next) => {
    try {
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
-      const skip = (page - 1) * limit;
-
       const filter = {
          user: req.user.id
       };
@@ -23,17 +19,11 @@ const getTasks = async (req, res, next) => {
       }
 
       const tasks = await Task.find(filter)
-         .sort({ createdAt: -1 })
-         .skip(skip)
-         .limit(limit);
-
-      const total = await Task.countDocuments(filter);
+         .sort({ createdAt: -1 });
 
       res.status(200).json({
          success: true,
-         page,
-         limit,
-         total,
+         total: tasks.length,
          data: tasks
       });
 
