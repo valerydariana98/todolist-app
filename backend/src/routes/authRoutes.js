@@ -5,6 +5,10 @@ const {
   register,
   login
 } = require("../controllers/authController");
+const {
+  getAuthUrl,
+  handleCallback
+} = require("../controllers/driveController");
 
 const router = express.Router();
 
@@ -18,5 +22,7 @@ router.get("/profile", authMiddleware, (req, res) => {
     });
   }
 );
+router.get("/google/drive", authMiddleware, getAuthUrl);
+router.get("/google/callback", handleCallback);
 
 module.exports = router;

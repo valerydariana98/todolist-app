@@ -33,6 +33,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/todolists", todoListRoutes);
 
+const driveRoutes = require("./routes/driveRoutes");
+app.use("/api/tasks/:taskId/files", driveRoutes);
+
 app.use((req, res) => {
    res.status(404).json({
       success: false,
