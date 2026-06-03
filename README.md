@@ -1,8 +1,8 @@
 # TodoList App
 
-Aplicación web de gestión de tareas desarrollada con React, Node.js, Express y MongoDB Atlas.
+Aplicación web para la gestión de listas y tareas desarrollada con React, Node.js, Express y MongoDB Atlas.
 
-Permite crear listas de tareas, agregar tareas a cada lista, marcarlas como completadas y eliminarlas.
+Permite a cada usuario registrarse, iniciar sesión y administrar de forma segura sus propias listas y tareas.
 
 ---
 
@@ -18,77 +18,92 @@ https://todolist-app-wtkf.onrender.com
 
 ---
 
-## Arquitectura
+## Tecnologías Utilizadas
 
-Frontend:
+### Frontend
 
-- React
-- Vite
-- CSS
+* React
+* Vite
+* Axios
+* CSS
 
-Backend:
+### Backend
 
-- Node.js
-- Express
-- MongoDB Atlas
-- Mongoose
-- Zod
+* Node.js
+* Express
+* MongoDB Atlas
+* Mongoose
+* Zod
+* JWT (JSON Web Tokens)
+* bcrypt
 
-Infraestructura:
+### Infraestructura
 
-- Vercel (Frontend)
-- Render (Backend)
-- MongoDB Atlas (Base de Datos)
-
----
-
-## Estructura del Proyecto
-
-```text
-todolist-app
-│
-├── frontend
-│   ├── src
-│   │   ├── pages
-│   │   ├── services
-│   │   ├── utils
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   │
-│   └── package.json
-│
-├── backend
-│   ├── src
-│   │   ├── controllers
-│   │   ├── models
-│   │   ├── routes
-│   │   ├── middlewares
-│   │   ├── validations
-│   │   └── server.js
-│   │
-│   └── package.json
-│
-└── README.md
-```
+* Vercel (Frontend)
+* Render (Backend)
+* MongoDB Atlas (Base de Datos)
 
 ---
 
 ## Funcionalidades
 
+### Autenticación
+
+* Registro de usuarios
+* Inicio de sesión
+* Generación de JWT
+* Protección de rutas privadas
+* Persistencia de sesión mediante Local Storage
+
 ### Listas
 
-- Crear listas
-- Consultar listas
-- Actualizar listas
-- Eliminar listas
+* Crear listas
+* Consultar listas
+* Actualizar listas
+* Eliminar listas
 
 ### Tareas
 
-- Crear tareas
-- Consultar tareas
-- Actualizar tareas
-- Marcar tareas como completadas
-- Eliminar tareas
+* Crear tareas
+* Consultar tareas
+* Actualizar tareas
+* Marcar tareas como completadas
+* Eliminar tareas
+
+### Seguridad
+
+* Contraseñas cifradas con bcrypt
+* Autenticación mediante JWT
+* Acceso restringido a recursos propios
+* Middleware de autorización
+
+---
+
+## Arquitectura
+
+Frontend:
+
+* Presentación e interacción del usuario
+* Consumo de API mediante Axios
+* Gestión de autenticación
+
+Backend:
+
+* API REST
+* Validaciones con Zod
+* Controladores
+* Middleware de autenticación
+* Persistencia en MongoDB Atlas
+
+Base de datos:
+
+* Usuarios
+* Listas
+* Tareas
+
+Relaciones:
+
+Usuario → Listas → Tareas
 
 ---
 
@@ -98,9 +113,9 @@ todolist-app
 
 Instalar:
 
-- Node.js 18 o superior
-- npm
-- MongoDB Atlas (o MongoDB local)
+* Node.js 18 o superior
+* npm
+* MongoDB Atlas (o MongoDB local)
 
 Verificar instalación:
 
@@ -135,8 +150,20 @@ Configurar:
 
 ```env
 PORT=3000
-MONGO_URI=uri_de_mongodb
+
+MONGO_URI=tu_uri_de_mongodb
+
 CLIENT_URL=http://localhost:5173
+
+JWT_SECRET=tu_clave_secreta
+
+JWT_EXPIRES_IN=7d
+
+GOOGLE_CLIENT_ID=opcional
+
+GOOGLE_CLIENT_SECRET=opcional
+
+GOOGLE_REDIRECT_URI=opcional
 ```
 
 Ejecutar:
@@ -193,25 +220,57 @@ http://localhost:5173
 
 ---
 
+## Variables de Entorno
+
+### Backend
+
+| Variable             | Descripción                  |
+| -------------------- | ---------------------------- |
+| PORT                 | Puerto del servidor          |
+| MONGO_URI            | Cadena de conexión a MongoDB |
+| CLIENT_URL           | URL permitida por CORS       |
+| JWT_SECRET           | Clave para firmar tokens     |
+| JWT_EXPIRES_IN       | Tiempo de expiración del JWT |
+| GOOGLE_CLIENT_ID     | Cliente OAuth de Google      |
+| GOOGLE_CLIENT_SECRET | Secreto OAuth de Google      |
+| GOOGLE_REDIRECT_URI  | Callback OAuth               |
+
+### Frontend
+
+| Variable     | Descripción        |
+| ------------ | ------------------ |
+| VITE_API_URL | URL base de la API |
+
+---
+
 ## Endpoints Principales
+
+### Autenticación
+
+| Método | Endpoint           |
+| ------ | ------------------ |
+| POST   | /api/auth/register |
+| POST   | /api/auth/login    |
+| GET    | /api/auth/profile  |
 
 ### Todo Lists
 
-| Método | Endpoint |
-|----------|----------|
-| GET | /api/todolists |
-| GET | /api/todolists/:id |
-| POST | /api/todolists |
-| PUT | /api/todolists/:id |
+| Método | Endpoint           |
+| ------ | ------------------ |
+| GET    | /api/todolists     |
+| GET    | /api/todolists/:id |
+| POST   | /api/todolists     |
+| PUT    | /api/todolists/:id |
 | DELETE | /api/todolists/:id |
 
 ### Tasks
 
-| Método | Endpoint |
-|----------|----------|
-| GET | /api/tasks |
-| GET | /api/tasks/:id |
-| POST | /api/tasks |
-| PUT | /api/tasks/:id |
-| PATCH | /api/tasks/:id/completed |
-| DELETE | /api/tasks/:id |
+| Método | Endpoint                 |
+| ------ | ------------------------ |
+| GET    | /api/tasks               |
+| GET    | /api/tasks/:id           |
+| POST   | /api/tasks               |
+| PUT    | /api/tasks/:id           |
+| PATCH  | /api/tasks/:id/completed |
+| DELETE | /api/tasks/:id           |
+
