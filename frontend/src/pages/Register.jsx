@@ -16,12 +16,39 @@ function Register({
     useState("");
 
   const [error, setError] =
-    useState(null);
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
 
+    setError("");
+
+    if (name.trim().length < 2) {
+      return setError(
+        "El nombre debe tener al menos 2 caracteres."
+      );
+    }
+
+    if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    ) {
+      return setError(
+        "El correo no tiene un formato válido."
+      );
+    }
+
+    if (password.length < 6) {
+      return setError(
+        "La contraseña debe tener al menos 6 caracteres."
+      );
+    }
+
     try {
+      setLoading(true);
+
       await register(
         name,
         email,
@@ -30,7 +57,29 @@ function Register({
 
       onSuccess();
     } catch (error) {
-      setError(error.message);
+      let message =
+        error.message ||
+        "Error al registrarse.";
+
+      try {
+        const parsed =
+          JSON.parse(message);
+
+        if (
+          Array.isArray(parsed) &&
+          parsed.length > 0
+        ) {
+          message = parsed
+            .map((e) => e.message)
+            .join(" ");
+        }
+      } catch {
+        // ignorar
+      }
+
+      setError(message);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -39,6 +88,7 @@ function Register({
       <h1>Registro</h1>
 
       <form
+        noValidate
         className="auth-form"
         onSubmit={handleSubmit}
       >
@@ -51,7 +101,7 @@ function Register({
         />
 
         <input
-          type="email"
+          type="text"
           placeholder="Correo"
           value={email}
           onChange={(e) =>
@@ -68,16 +118,21 @@ function Register({
           }
         />
 
-        <button type="submit">
-          Registrarse
+        {error && (
+          <p className="error">
+            {error}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+        >
+          {loading
+            ? "Registrando..."
+            : "Registrarse"}
         </button>
       </form>
-
-      {error && (
-        <p className="error">
-          {error}
-        </p>
-      )}
 
       <button
         className="btn-back"

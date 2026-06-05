@@ -7,13 +7,41 @@ function Login({ onLogin, onRegister }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] =
     useState("");
+
   const [error, setError] =
-    useState(null);
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
 
+    setError("");
+
+    if (!email.trim()) {
+      return setError(
+        "Debes ingresar un correo."
+      );
+    }
+
+    if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    ) {
+      return setError(
+        "El correo no tiene un formato válido."
+      );
+    }
+
+    if (!password.trim()) {
+      return setError(
+        "Debes ingresar una contraseña."
+      );
+    }
+
     try {
+      setLoading(true);
+
       const data = await login(
         email,
         password
@@ -23,7 +51,12 @@ function Login({ onLogin, onRegister }) {
 
       onLogin();
     } catch (error) {
-      setError(error.message);
+      setError(
+        error.message ||
+          "Error al iniciar sesión."
+      );
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -32,11 +65,12 @@ function Login({ onLogin, onRegister }) {
       <h1>Login</h1>
 
       <form
+        noValidate
         className="auth-form"
         onSubmit={handleSubmit}
       >
         <input
-          type="email"
+          type="text"
           placeholder="Correo"
           value={email}
           onChange={(e) =>
@@ -53,16 +87,21 @@ function Login({ onLogin, onRegister }) {
           }
         />
 
-        <button type="submit">
-          Entrar
+        {error && (
+          <p className="error">
+            {error}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+        >
+          {loading
+            ? "Ingresando..."
+            : "Entrar"}
         </button>
       </form>
-
-      {error && (
-        <p className="error">
-          {error}
-        </p>
-      )}
 
       <button
         className="btn-back"

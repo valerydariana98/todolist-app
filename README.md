@@ -2,7 +2,7 @@
 
 Aplicación web para la gestión de listas y tareas desarrollada con React, Node.js, Express y MongoDB Atlas.
 
-Permite a cada usuario registrarse, iniciar sesión y administrar de forma segura sus propias listas y tareas.
+Permite crear listas de tareas, agregar tareas a cada lista, editarlas, marcarlas como completadas y eliminarlas.
 
 ---
 
@@ -24,7 +24,6 @@ https://todolist-app-wtkf.onrender.com
 
 * React
 * Vite
-* Axios
 * CSS
 
 ### Backend
@@ -34,8 +33,7 @@ https://todolist-app-wtkf.onrender.com
 * MongoDB Atlas
 * Mongoose
 * Zod
-* JWT (JSON Web Tokens)
-* bcrypt
+* HTTPS (SSL)
 
 ### Infraestructura
 
@@ -45,7 +43,38 @@ https://todolist-app-wtkf.onrender.com
 
 ---
 
-## Funcionalidades
+## Estructura del Proyecto
+
+```text
+todolist-app
+│
+├── frontend
+│   ├── src
+│   │   ├── pages
+│   │   ├── services
+│   │   ├── utils
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   │
+│   └── package.json
+│
+├── backend
+│   ├── src
+│   │   ├── controllers
+│   │   ├── models
+│   │   ├── routes
+│   │   ├── middlewares
+│   │   ├── validations
+│   │   └── server.js
+│   │
+│   ├── certs
+│   │   ├── cert.pem
+│   │   └── key.pem
+│   │
+│   └── package.json
+│
+└── README.md
+```
 
 ### Autenticación
 
@@ -72,38 +101,9 @@ https://todolist-app-wtkf.onrender.com
 
 ### Seguridad
 
-* Contraseñas cifradas con bcrypt
-* Autenticación mediante JWT
-* Acceso restringido a recursos propios
-* Middleware de autorización
-
----
-
-## Arquitectura
-
-Frontend:
-
-* Presentación e interacción del usuario
-* Consumo de API mediante Axios
-* Gestión de autenticación
-
-Backend:
-
-* API REST
-* Validaciones con Zod
-* Controladores
-* Middleware de autenticación
-* Persistencia en MongoDB Atlas
-
-Base de datos:
-
-* Usuarios
-* Listas
-* Tareas
-
-Relaciones:
-
-Usuario → Listas → Tareas
+* Autenticación JWT
+* Protección de rutas
+* HTTPS mediante certificados SSL
 
 ---
 
@@ -116,6 +116,7 @@ Instalar:
 * Node.js 18 o superior
 * npm
 * MongoDB Atlas (o MongoDB local)
+* OpenSSL
 
 Verificar instalación:
 
@@ -126,7 +127,7 @@ npm -v
 
 ---
 
-## Backend
+# Backend
 
 Entrar al directorio:
 
@@ -140,10 +141,14 @@ Instalar dependencias:
 npm install
 ```
 
-Crear archivo:
+---
+
+## Variables de Entorno Backend
+
+Crear un archivo:
 
 ```text
-.env
+backend/.env
 ```
 
 Configurar:
@@ -153,20 +158,61 @@ PORT=3000
 
 MONGO_URI=tu_uri_de_mongodb
 
-CLIENT_URL=http://localhost:5173
-
 JWT_SECRET=tu_clave_secreta
 
-JWT_EXPIRES_IN=7d
-
-GOOGLE_CLIENT_ID=opcional
-
-GOOGLE_CLIENT_SECRET=opcional
-
-GOOGLE_REDIRECT_URI=opcional
+CLIENT_URL=https://localhost:5173
 ```
 
-Ejecutar:
+---
+
+## Configuración HTTPS
+
+Crear la carpeta:
+
+```bash
+mkdir certs
+```
+
+Generar certificados SSL:
+
+### Linux / Git Bash
+
+```bash
+openssl req -nodes -new -x509 \
+-keyout certs/key.pem \
+-out certs/cert.pem \
+-days 365
+```
+
+### Windows PowerShell
+
+```bash
+"C:\Program Files\OpenSSL-Win64\bin\openssl.exe" req -nodes -new -x509 -keyout certs/key.pem -out certs/cert.pem -days 365
+```
+
+Durante la generación se solicitarán algunos datos como:
+
+```text
+Country Name
+State
+Locality
+Organization
+Common Name
+Email
+```
+
+Se puede ingresar cualquier valor.
+
+Al finalizar se generarán:
+
+```text
+backend/certs/key.pem
+backend/certs/cert.pem
+```
+
+---
+
+## Ejecutar Backend
 
 ```bash
 npm run dev
@@ -175,12 +221,12 @@ npm run dev
 Servidor disponible en:
 
 ```text
-http://localhost:3000
+https://localhost:3000
 ```
 
 ---
 
-## Frontend
+# Frontend
 
 Entrar al directorio:
 
@@ -194,19 +240,25 @@ Instalar dependencias:
 npm install
 ```
 
-Crear archivo:
+---
+
+## Variables de Entorno Frontend
+
+Crear un archivo:
 
 ```text
-.env
+frontend/.env
 ```
 
 Configurar:
 
 ```env
-VITE_API_URL=http://localhost:3000/api
+VITE_API_URL=https://localhost:3000/api
 ```
 
-Ejecutar:
+---
+
+## Ejecutar Frontend
 
 ```bash
 npm run dev
@@ -215,43 +267,47 @@ npm run dev
 Aplicación disponible en:
 
 ```text
-http://localhost:5173
+https://localhost:5173
 ```
 
 ---
 
-## Variables de Entorno
+## Orden Correcto de Ejecución
 
-### Backend
+1. Configurar MongoDB Atlas.
+2. Crear archivo `.env` en backend.
+3. Crear archivo `.env` en frontend.
+4. Generar certificados SSL.
+5. Ejecutar backend.
+6. Ejecutar frontend.
 
-| Variable             | Descripción                  |
-| -------------------- | ---------------------------- |
-| PORT                 | Puerto del servidor          |
-| MONGO_URI            | Cadena de conexión a MongoDB |
-| CLIENT_URL           | URL permitida por CORS       |
-| JWT_SECRET           | Clave para firmar tokens     |
-| JWT_EXPIRES_IN       | Tiempo de expiración del JWT |
-| GOOGLE_CLIENT_ID     | Cliente OAuth de Google      |
-| GOOGLE_CLIENT_SECRET | Secreto OAuth de Google      |
-| GOOGLE_REDIRECT_URI  | Callback OAuth               |
+---
 
-### Frontend
+## Base de Datos de Prueba
 
-| Variable     | Descripción        |
-| ------------ | ------------------ |
-| VITE_API_URL | URL base de la API |
+Se adjunta una base de datos exportada para realizar pruebas del sistema.
+
+La base de datos contiene:
+
+* Usuarios
+* Listas
+* Tareas
+
+Puede importarse mediante MongoDB Compass o herramientas de importación de MongoDB.
 
 ---
 
 ## Endpoints Principales
 
-### Autenticación
+### Auth
 
 | Método | Endpoint           |
 | ------ | ------------------ |
 | POST   | /api/auth/register |
 | POST   | /api/auth/login    |
 | GET    | /api/auth/profile  |
+
+---
 
 ### Todo Lists
 
@@ -262,6 +318,8 @@ http://localhost:5173
 | POST   | /api/todolists     |
 | PUT    | /api/todolists/:id |
 | DELETE | /api/todolists/:id |
+
+---
 
 ### Tasks
 
@@ -274,3 +332,17 @@ http://localhost:5173
 | PATCH  | /api/tasks/:id/completed |
 | DELETE | /api/tasks/:id           |
 
+---
+
+## Archivos No Incluidos
+
+Por motivos de seguridad NO se incluyen en el repositorio:
+
+```text
+.env
+certs/key.pem
+certs/cert.pem
+node_modules
+```
+
+Cada desarrollador debe generar y configurar estos archivos localmente siguiendo las instrucciones anteriores.

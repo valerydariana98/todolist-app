@@ -14,6 +14,15 @@ export function addTask(todoList, title) {
   });
 }
 
+export function updateTask(id, title) {
+  return request(`/tasks/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      title,
+    }),
+  });
+}
+
 export function toggleTask(id) {
   return request(`/tasks/${id}/completed`, {
     method: "PATCH",

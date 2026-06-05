@@ -1,7 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "./App.css";
-
-const API = "/api";
 
 import "./App.css";
 
