@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import { login } from "../services/authService";
 import { saveToken } from "../utils/auth";
 
@@ -70,6 +69,7 @@ function Login({ onLogin, onRegister }) {
         onSubmit={handleSubmit}
       >
         <input
+          className="auth-input"
           type="text"
           placeholder="Correo"
           value={email}
@@ -79,6 +79,7 @@ function Login({ onLogin, onRegister }) {
         />
 
         <input
+          className="auth-input"
           type="password"
           placeholder="Contraseña"
           value={password}

@@ -93,6 +93,7 @@ function Register({
         onSubmit={handleSubmit}
       >
         <input
+          className="auth-input"
           placeholder="Nombre"
           value={name}
           onChange={(e) =>
@@ -101,6 +102,7 @@ function Register({
         />
 
         <input
+          className="auth-input"
           type="text"
           placeholder="Correo"
           value={email}
@@ -110,6 +112,7 @@ function Register({
         />
 
         <input
+          className="auth-input"
           type="password"
           placeholder="Contraseña"
           value={password}
