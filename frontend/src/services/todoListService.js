@@ -11,6 +11,13 @@ export function addSection(title) {
   });
 }
 
+export function updateSection(id, title) {
+  return request(`/todolists/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({ title }),
+  });
+}
+
 export function deleteSection(id) {
   return request(`/todolists/${id}`, {
     method: "DELETE",

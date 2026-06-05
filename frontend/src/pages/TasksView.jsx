@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import {FaPencilAlt, FaTrash } from "react-icons/fa";
 
 import {
   getTasks,
   addTask,
   toggleTask,
   deleteTask,
+  updateTask,
 } from "../services/taskService";
 
 import {
@@ -14,72 +16,216 @@ import {
   deleteFile,
 } from "../services/driveService";
 
-function TasksView({ section, onBack }) {
-  const [tasks, setTasks] = useState([]);
-  const [title, setTitle] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+function TasksView({
+  section,
+  onBack,
+}) {
+  const [tasks, setTasks] =
+    useState([]);
 
-  const [selectedTask, setSelectedTask] = useState(null);
-  const [files, setFiles] = useState([]);
-  const [filesLoading, setFilesLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [accessToken, setAccessToken] = useState(
-    localStorage.getItem("googleAccessToken") || null
-  );
+  const [title, setTitle] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState(null);
+
+  const [editingTask, setEditingTask] =
+    useState(null);
+
+  const [editTitle, setEditTitle] =
+    useState("");
+
+  const [selectedTask, setSelectedTask] =
+    useState(null);
+
+  const [files, setFiles] =
+    useState([]);
+
+  const [filesLoading, setFilesLoading] =
+    useState(false);
+
+  const [uploading, setUploading] =
+    useState(false);
+
+  const [accessToken, setAccessToken] =
+    useState(
+      localStorage.getItem(
+        "googleAccessToken"
+      ) || null
+    );
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("access_token");
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const token =
+      params.get("access_token");
+
     if (token) {
-      localStorage.setItem("googleAccessToken", token);
+      localStorage.setItem(
+        "googleAccessToken",
+        token
+      );
+
       setAccessToken(token);
-      window.history.replaceState({}, "", window.location.pathname);
+
+      window.history.replaceState(
+        {},
+        "",
+        window.location.pathname
+      );
     }
   }, []);
 
   useEffect(() => {
     getTasks()
       .then((data) => {
-        const all = Array.isArray(data) ? data : [];
+        const all =
+          Array.isArray(data)
+            ? data
+            : [];
+
         setTasks(
           all.filter((task) => {
-            const id = task.todoList?._id || task.todoList;
-            return id === section._id;
+            const id =
+              task.todoList?._id ||
+              task.todoList;
+
+            return (
+              id === section._id
+            );
           })
         );
       })
-      .catch((error) => setError(error.message))
-      .finally(() => setLoading(false));
+      .catch((error) =>
+        setError(error.message)
+      )
+      .finally(() =>
+        setLoading(false)
+      );
   }, [section._id]);
 
   async function handleAdd(e) {
     e.preventDefault();
-    if (!title.trim()) return;
+
+    const trimmed =
+      title.trim();
+
+    if (!trimmed) return;
+
+    if (
+      trimmed.length > 100
+    ) {
+      setError(
+        "La tarea no puede superar 100 caracteres"
+      );
+      return;
+    }
+
     try {
-      const created = await addTask(section._id, title.trim());
-      setTasks((prev) => [...prev, created]);
+      const created =
+        await addTask(
+          section._id,
+          trimmed
+        );
+
+      setTasks((prev) => [
+        ...prev,
+        created,
+      ]);
+
       setTitle("");
+      setError(null);
     } catch (error) {
       setError(error.message);
     }
   }
 
-  async function handleToggle(task) {
+  async function handleToggle(
+    task
+  ) {
     try {
-      const updated = await toggleTask(task._id);
+      const updated =
+        await toggleTask(
+          task._id
+        );
+
       setTasks((prev) =>
-        prev.map((t) => (t._id === task._id ? { ...t, ...updated } : t))
+        prev.map((t) =>
+          t._id === task._id
+            ? {
+                ...t,
+                ...updated,
+              }
+            : t
+        )
       );
     } catch (error) {
       setError(error.message);
     }
   }
 
-  async function handleDelete(id) {
+  async function handleDelete(
+    id
+  ) {
     try {
       await deleteTask(id);
-      setTasks((prev) => prev.filter((task) => task._id !== id));
+
+      setTasks((prev) =>
+        prev.filter(
+          (task) =>
+            task._id !== id
+        )
+      );
+    } catch (error) {
+      setError(error.message);
+    }
+  }
+
+  function openEdit(task) {
+    setEditingTask(task);
+    setEditTitle(task.title);
+  }
+
+  async function handleEditSave() {
+    const trimmed =
+      editTitle.trim();
+
+    if (!trimmed) return;
+
+    if (
+      trimmed.length > 100
+    ) {
+      setError(
+        "La tarea no puede superar 100 caracteres"
+      );
+      return;
+    }
+
+    try {
+      const updated =
+        await updateTask(
+          editingTask._id,
+          trimmed
+        );
+
+      setTasks((prev) =>
+        prev.map((task) =>
+          task._id ===
+          editingTask._id
+            ? updated
+            : task
+        )
+      );
+
+      setEditingTask(null);
+      setEditTitle("");
+      setError(null);
     } catch (error) {
       setError(error.message);
     }
@@ -87,18 +233,31 @@ function TasksView({ section, onBack }) {
 
   async function handleConnectDrive() {
     try {
-      const url = await getGoogleAuthUrl();
-      window.location.href = url;
-    } catch (error) {
-      setError("No se pudo conectar con Google Drive");
+      const url =
+        await getGoogleAuthUrl();
+
+      window.location.href =
+        url;
+    } catch {
+      setError(
+        "No se pudo conectar con Google Drive"
+      );
     }
   }
 
-  async function handleOpenFiles(task) {
+  async function handleOpenFiles(
+    task
+  ) {
     setSelectedTask(task);
+
     setFilesLoading(true);
+
     try {
-      const data = await getFiles(task._id);
+      const data =
+        await getFiles(
+          task._id
+        );
+
       setFiles(data);
     } catch (error) {
       setError(error.message);
@@ -108,30 +267,68 @@ function TasksView({ section, onBack }) {
   }
 
   async function handleUpload(e) {
-    const file = e.target.files[0];
-    if (!file || !accessToken) return;
+    const file =
+      e.target.files[0];
+
+    if (
+      !file ||
+      !accessToken
+    )
+      return;
+
     setUploading(true);
+
     try {
-      const uploaded = await uploadFile(selectedTask._id, file, accessToken);
-      setFiles((prev) => [...prev, uploaded]);
-    } catch (error) {
-      setError("Error al subir archivo");
+      const uploaded =
+        await uploadFile(
+          selectedTask._id,
+          file,
+          accessToken
+        );
+
+      setFiles((prev) => [
+        ...prev,
+        uploaded,
+      ]);
+    } catch {
+      setError(
+        "Error al subir archivo"
+      );
     } finally {
       setUploading(false);
     }
   }
 
-  async function handleDeleteFile(fileId) {
+  async function handleDeleteFile(
+    fileId
+  ) {
     if (!accessToken) return;
+
     try {
-      await deleteFile(selectedTask._id, fileId, accessToken);
-      setFiles((prev) => prev.filter((f) => f._id !== fileId));
-    } catch (error) {
-      setError("Error al eliminar archivo");
+      await deleteFile(
+        selectedTask._id,
+        fileId,
+        accessToken
+      );
+
+      setFiles((prev) =>
+        prev.filter(
+          (f) =>
+            f._id !== fileId
+        )
+      );
+    } catch {
+      setError(
+        "Error al eliminar archivo"
+      );
     }
   }
 
-  const done = tasks.filter((task) => task.completed).length;
+  const done =
+    tasks.filter(
+      (task) => task.completed
+    ).length;
+
   const total = tasks.length;
 
   return (
@@ -139,108 +336,258 @@ function TasksView({ section, onBack }) {
       <h1>{section.title}</h1>
 
       {total > 0 && (
-        <p className="muted">{done}/{total} completadas</p>
+        <p className="muted">
+          {done}/{total} completadas
+        </p>
       )}
 
-      <form className="row" onSubmit={handleAdd}>
+      <form
+        className="row"
+        onSubmit={handleAdd}
+      >
         <input
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          maxLength={100}
+          onChange={(e) =>
+            setTitle(e.target.value)
+          }
           placeholder="Nueva tarea"
           autoFocus
         />
-        <button type="submit">Agregar</button>
+
+        <button type="submit">
+          Agregar
+        </button>
       </form>
 
-      {error && <p className="error">{error}</p>}
-      {loading && <p className="muted">Cargando...</p>}
-
-      {!loading && tasks.length === 0 && (
-        <p className="muted">Sin tareas.</p>
+      {error && (
+        <p className="error">
+          {error}
+        </p>
       )}
+
+      {loading && (
+        <p className="muted">
+          Cargando...
+        </p>
+      )}
+
+      {!loading &&
+        tasks.length === 0 && (
+          <p className="muted">
+            Sin tareas.
+          </p>
+        )}
 
       <ul className="list">
         {tasks
           .slice()
-          .sort((a, b) => Number(a.completed) - Number(b.completed))
+          .sort(
+            (a, b) =>
+              Number(a.completed) -
+              Number(b.completed)
+          )
           .map((task) => (
             <li
               key={task._id}
-              className={`item ${task.completed ? "done" : ""}`}
+              className={`item ${
+                task.completed
+                  ? "done"
+                  : ""
+              }`}
             >
               <input
                 type="checkbox"
-                checked={task.completed}
-                onChange={() => handleToggle(task)}
+                checked={
+                  task.completed
+                }
+                onChange={() =>
+                  handleToggle(task)
+                }
               />
 
-              <span className="task-title">{task.title}</span>
+              <span className="task-title">
+                {task.title}
+              </span>
 
               <button
-                className="btn-files"
-                onClick={() => handleOpenFiles(task)}
+                className="icon-btn"
+                type="button"
+                onClick={() =>
+                  handleOpenFiles(task)
+                }
               >
-                📎 Archivos
+                📎
               </button>
 
-              <button
-                className="btn-del"
-                onClick={() => handleDelete(task._id)}
-              >
-                Eliminar
-              </button>
+              <div className="actions">
+                <button
+                  className="icon-btn"
+                  type="button"
+                  onClick={() =>
+                    openEdit(task)
+                  }
+                >
+                  <FaPencilAlt />
+                </button>
+
+                <button
+                  className="icon-btn delete"
+                  type="button"
+                  onClick={() =>
+                    handleDelete(
+                      task._id
+                    )
+                  }
+                >
+                  <FaTrash />
+                </button>
+              </div>
             </li>
           ))}
       </ul>
 
+      {editingTask && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>
+              Editar tarea
+            </h3>
+
+            <input
+              value={editTitle}
+              maxLength={100}
+              onChange={(e) =>
+                setEditTitle(
+                  e.target.value
+                )
+              }
+            />
+
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="cancel"
+                onClick={() =>
+                  setEditingTask(
+                    null
+                  )
+                }
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                className="save"
+                onClick={
+                  handleEditSave
+                }
+              >
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {selectedTask && (
         <div className="files-panel">
-          <h3>Archivos de: {selectedTask.title}</h3>
+          <h3>
+            Archivos de:
+            {" "}
+            {
+              selectedTask.title
+            }
+          </h3>
 
           {!accessToken ? (
-            <button onClick={handleConnectDrive}>
-              Conectar Google Drive
+            <button
+              onClick={
+                handleConnectDrive
+              }
+            >
+              Conectar Google
+              Drive
             </button>
           ) : (
-            <>
-              <label className="btn-upload">
-                {uploading ? "Subiendo..." : "Subir archivo"}
-                <input
-                  type="file"
-                  onChange={handleUpload}
-                  disabled={uploading}
-                  style={{ display: "none" }}
-                />
-              </label>
-            </>
+            <label className="btn-upload">
+              {uploading
+                ? "Subiendo..."
+                : "Subir archivo"}
+
+              <input
+                type="file"
+                onChange={
+                  handleUpload
+                }
+                disabled={
+                  uploading
+                }
+                style={{
+                  display:
+                    "none",
+                }}
+              />
+            </label>
           )}
 
-          {filesLoading && <p className="muted">Cargando archivos...</p>}
-
-          {!filesLoading && files.length === 0 && (
-            <p className="muted">Sin archivos adjuntos.</p>
+          {filesLoading && (
+            <p className="muted">
+              Cargando
+              archivos...
+            </p>
           )}
+
+          {!filesLoading &&
+            files.length === 0 && (
+              <p className="muted">
+                Sin archivos
+                adjuntos.
+              </p>
+            )}
 
           <ul className="files-list">
-            {files.map((file) => (
-              <li key={file._id} className="file-item">
-                <a href={file.webViewLink} target="_blank" rel="noreferrer">
-                  {file.name}
-                </a>
-                <button
-                  className="btn-del"
-                  onClick={() => handleDeleteFile(file._id)}
+            {files.map(
+              (file) => (
+                <li
+                  key={
+                    file._id
+                  }
+                  className="file-item"
                 >
-                  Eliminar
-                </button>
-              </li>
-            ))}
+                  <a
+                    href={
+                      file.webViewLink
+                    }
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {file.name}
+                  </a>
+
+                  <button
+                    className="icon-btn delete"
+                    type="button"
+                    onClick={() =>
+                      handleDeleteFile(
+                        file._id
+                      )
+                    }
+                  >
+                    <FaTrash />
+                  </button>
+                </li>
+              )
+            )}
           </ul>
 
           <button
             className="btn-back"
             onClick={() => {
-              setSelectedTask(null);
+              setSelectedTask(
+                null
+              );
               setFiles([]);
             }}
           >
@@ -249,7 +596,10 @@ function TasksView({ section, onBack }) {
         </div>
       )}
 
-      <button className="btn-back" onClick={onBack}>
+      <button
+        className="btn-back"
+        onClick={onBack}
+      >
         ← Volver a listas
       </button>
     </div>
