@@ -1,6 +1,6 @@
 # TodoList App
 
-Aplicación web de gestión de tareas desarrollada con React, Node.js, Express y MongoDB Atlas.
+Aplicación web para la gestión de listas y tareas desarrollada con React, Node.js, Express y MongoDB Atlas.
 
 Permite crear listas de tareas, agregar tareas a cada lista, editarlas, marcarlas como completadas y eliminarlas.
 
@@ -18,7 +18,7 @@ https://todolist-app-wtkf.onrender.com
 
 ---
 
-## Arquitectura
+## Tecnologías Utilizadas
 
 ### Frontend
 
@@ -76,9 +76,13 @@ todolist-app
 └── README.md
 ```
 
----
+### Autenticación
 
-## Funcionalidades
+* Registro de usuarios
+* Inicio de sesión
+* Generación de JWT
+* Protección de rutas privadas
+* Persistencia de sesión mediante Local Storage
 
 ### Listas
 
