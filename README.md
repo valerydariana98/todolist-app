@@ -2,7 +2,7 @@
 
 Aplicación web de gestión de tareas desarrollada con React, Node.js, Express y MongoDB Atlas.
 
-Permite crear listas de tareas, agregar tareas a cada lista, marcarlas como completadas y eliminarlas.
+Permite crear listas de tareas, agregar tareas a cada lista, editarlas, marcarlas como completadas y eliminarlas.
 
 ---
 
@@ -20,25 +20,26 @@ https://todolist-app-wtkf.onrender.com
 
 ## Arquitectura
 
-Frontend:
+### Frontend
 
-- React
-- Vite
-- CSS
+* React
+* Vite
+* CSS
 
-Backend:
+### Backend
 
-- Node.js
-- Express
-- MongoDB Atlas
-- Mongoose
-- Zod
+* Node.js
+* Express
+* MongoDB Atlas
+* Mongoose
+* Zod
+* HTTPS (SSL)
 
-Infraestructura:
+### Infraestructura
 
-- Vercel (Frontend)
-- Render (Backend)
-- MongoDB Atlas (Base de Datos)
+* Vercel (Frontend)
+* Render (Backend)
+* MongoDB Atlas (Base de Datos)
 
 ---
 
@@ -66,6 +67,10 @@ todolist-app
 │   │   ├── validations
 │   │   └── server.js
 │   │
+│   ├── certs
+│   │   ├── cert.pem
+│   │   └── key.pem
+│   │
 │   └── package.json
 │
 └── README.md
@@ -77,18 +82,24 @@ todolist-app
 
 ### Listas
 
-- Crear listas
-- Consultar listas
-- Actualizar listas
-- Eliminar listas
+* Crear listas
+* Consultar listas
+* Actualizar listas
+* Eliminar listas
 
 ### Tareas
 
-- Crear tareas
-- Consultar tareas
-- Actualizar tareas
-- Marcar tareas como completadas
-- Eliminar tareas
+* Crear tareas
+* Consultar tareas
+* Actualizar tareas
+* Marcar tareas como completadas
+* Eliminar tareas
+
+### Seguridad
+
+* Autenticación JWT
+* Protección de rutas
+* HTTPS mediante certificados SSL
 
 ---
 
@@ -98,9 +109,10 @@ todolist-app
 
 Instalar:
 
-- Node.js 18 o superior
-- npm
-- MongoDB Atlas (o MongoDB local)
+* Node.js 18 o superior
+* npm
+* MongoDB Atlas (o MongoDB local)
+* OpenSSL
 
 Verificar instalación:
 
@@ -111,7 +123,7 @@ npm -v
 
 ---
 
-## Backend
+# Backend
 
 Entrar al directorio:
 
@@ -125,21 +137,78 @@ Instalar dependencias:
 npm install
 ```
 
-Crear archivo:
+---
+
+## Variables de Entorno Backend
+
+Crear un archivo:
 
 ```text
-.env
+backend/.env
 ```
 
 Configurar:
 
 ```env
 PORT=3000
-MONGO_URI=uri_de_mongodb
-CLIENT_URL=http://localhost:5173
+
+MONGO_URI=tu_uri_de_mongodb
+
+JWT_SECRET=tu_clave_secreta
+
+CLIENT_URL=https://localhost:5173
 ```
 
-Ejecutar:
+---
+
+## Configuración HTTPS
+
+Crear la carpeta:
+
+```bash
+mkdir certs
+```
+
+Generar certificados SSL:
+
+### Linux / Git Bash
+
+```bash
+openssl req -nodes -new -x509 \
+-keyout certs/key.pem \
+-out certs/cert.pem \
+-days 365
+```
+
+### Windows PowerShell
+
+```bash
+"C:\Program Files\OpenSSL-Win64\bin\openssl.exe" req -nodes -new -x509 -keyout certs/key.pem -out certs/cert.pem -days 365
+```
+
+Durante la generación se solicitarán algunos datos como:
+
+```text
+Country Name
+State
+Locality
+Organization
+Common Name
+Email
+```
+
+Se puede ingresar cualquier valor.
+
+Al finalizar se generarán:
+
+```text
+backend/certs/key.pem
+backend/certs/cert.pem
+```
+
+---
+
+## Ejecutar Backend
 
 ```bash
 npm run dev
@@ -148,12 +217,12 @@ npm run dev
 Servidor disponible en:
 
 ```text
-http://localhost:3000
+https://localhost:3000
 ```
 
 ---
 
-## Frontend
+# Frontend
 
 Entrar al directorio:
 
@@ -167,19 +236,25 @@ Instalar dependencias:
 npm install
 ```
 
-Crear archivo:
+---
+
+## Variables de Entorno Frontend
+
+Crear un archivo:
 
 ```text
-.env
+frontend/.env
 ```
 
 Configurar:
 
 ```env
-VITE_API_URL=http://localhost:3000/api
+VITE_API_URL=https://localhost:3000/api
 ```
 
-Ejecutar:
+---
+
+## Ejecutar Frontend
 
 ```bash
 npm run dev
@@ -188,30 +263,82 @@ npm run dev
 Aplicación disponible en:
 
 ```text
-http://localhost:5173
+https://localhost:5173
 ```
+
+---
+
+## Orden Correcto de Ejecución
+
+1. Configurar MongoDB Atlas.
+2. Crear archivo `.env` en backend.
+3. Crear archivo `.env` en frontend.
+4. Generar certificados SSL.
+5. Ejecutar backend.
+6. Ejecutar frontend.
+
+---
+
+## Base de Datos de Prueba
+
+Se adjunta una base de datos exportada para realizar pruebas del sistema.
+
+La base de datos contiene:
+
+* Usuarios
+* Listas
+* Tareas
+
+Puede importarse mediante MongoDB Compass o herramientas de importación de MongoDB.
 
 ---
 
 ## Endpoints Principales
 
+### Auth
+
+| Método | Endpoint           |
+| ------ | ------------------ |
+| POST   | /api/auth/register |
+| POST   | /api/auth/login    |
+| GET    | /api/auth/profile  |
+
+---
+
 ### Todo Lists
 
-| Método | Endpoint |
-|----------|----------|
-| GET | /api/todolists |
-| GET | /api/todolists/:id |
-| POST | /api/todolists |
-| PUT | /api/todolists/:id |
+| Método | Endpoint           |
+| ------ | ------------------ |
+| GET    | /api/todolists     |
+| GET    | /api/todolists/:id |
+| POST   | /api/todolists     |
+| PUT    | /api/todolists/:id |
 | DELETE | /api/todolists/:id |
+
+---
 
 ### Tasks
 
-| Método | Endpoint |
-|----------|----------|
-| GET | /api/tasks |
-| GET | /api/tasks/:id |
-| POST | /api/tasks |
-| PUT | /api/tasks/:id |
-| PATCH | /api/tasks/:id/completed |
-| DELETE | /api/tasks/:id |
+| Método | Endpoint                 |
+| ------ | ------------------------ |
+| GET    | /api/tasks               |
+| GET    | /api/tasks/:id           |
+| POST   | /api/tasks               |
+| PUT    | /api/tasks/:id           |
+| PATCH  | /api/tasks/:id/completed |
+| DELETE | /api/tasks/:id           |
+
+---
+
+## Archivos No Incluidos
+
+Por motivos de seguridad NO se incluyen en el repositorio:
+
+```text
+.env
+certs/key.pem
+certs/cert.pem
+node_modules
+```
+
+Cada desarrollador debe generar y configurar estos archivos localmente siguiendo las instrucciones anteriores.
